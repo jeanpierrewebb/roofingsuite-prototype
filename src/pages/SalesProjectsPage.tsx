@@ -82,14 +82,16 @@ const facets: Facet<SalesProject>[] = [
 
 export default function SalesProjectsPage() {
   const [formOpen, setFormOpen] = useState(false);
+  const [mode, setMode] = useState<'add' | 'edit'>('add');
   return (
     <>
       <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5 }}>
         Sales Projects
       </Typography>
       <Alert severity="success" sx={{ mb: 2 }}>
-        Proposed columns for sign-off. <strong>Added:</strong> Lead Source, Next Follow-up, insurance
-        claim info (CSV). <strong>Removed:</strong> estimated completion date, actual amount.
+        <strong>One-step creation:</strong> "Add Sales Project (Lead)" captures the contact, type,
+        category, salesperson, pipeline & status — and <strong>auto-creates the linked Account</strong>{' '}
+        (no separate Add Account). <strong>Click a row</strong> to edit, or Convert a Lead into a Job.
       </Alert>
       <FilterableTable
         rows={mockSalesProjects}
@@ -100,9 +102,16 @@ export default function SalesProjectsPage() {
         csvBase="sales-projects"
         entityLabel="sales projects"
         addLabel="Add Sales Project"
-        onAdd={() => setFormOpen(true)}
+        onAdd={() => {
+          setMode('add');
+          setFormOpen(true);
+        }}
+        onRowClick={() => {
+          setMode('edit');
+          setFormOpen(true);
+        }}
       />
-      <RecordFormDialog open={formOpen} onClose={() => setFormOpen(false)} config={salesProjectForm} />
+      <RecordFormDialog open={formOpen} onClose={() => setFormOpen(false)} config={salesProjectForm} mode={mode} />
     </>
   );
 }

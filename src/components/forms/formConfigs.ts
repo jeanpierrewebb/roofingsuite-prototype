@@ -20,22 +20,38 @@ export interface FormConfig {
   title: string;
   sections: FormSection[];
   removed: string[]; // fields intentionally removed from the current app
+  note?: string; // callout shown at the top of the dialog (workflow explainer)
+  convertLabel?: string; // adds a secondary "convert record type" action button
 }
 
 const LEAD_SOURCES = ['Referral', 'Storm', 'Door-knock', 'Web', 'Insurance'];
 const OWNERS = ['Ben Carter', 'Wendy Shaw', 'Mike Duncan', 'Sara Lopez', 'Tom Reilly'];
 const CARRIERS = ['State Farm', 'Allstate', 'Farmers', 'American Family', 'USAA', 'Nationwide'];
 const CONTACT_TYPES = ['Homeowner', 'Insurance Adjuster', 'Property Manager', 'Vendor', 'General Contractor'];
+// Account "Type" — added Tax-Exempt to cover the client's "Untax" (churches, non-profits, etc.)
+const ACCOUNT_TYPES = ['Residential', 'Commercial', 'Government', 'Tax-Exempt'];
+const CATEGORIES = ['Roof Replacement', 'Roof Repair', 'Storm / Insurance', 'New Construction', 'Inspection', 'Gutters', 'Commercial'];
+const PIPELINES = ['Residential Sales', 'Insurance / Storm', 'Commercial'];
+const SALES_STEPS = ['New Lead', 'Contacted', 'Inspection Scheduled', 'Estimate Sent', 'Agreement Signed', 'Lost'];
+const FIELD_STEPS = ['Scheduled', 'Materials Ordered', 'In Progress', 'Inspection', 'Complete'];
 
 export const accountForm: FormConfig = {
   title: 'Account',
-  removed: ['Tax rate (moved to Billing settings)', 'Custom-field columns clutter'],
+  convertLabel: 'Convert Customer → Prospect (turn the Job into a Lead)',
+  note:
+    'Accounts are created automatically when a Project is added, and can’t be deleted (Project data is anchored to them) — open one here only to correct details. An Account reads as Customer or Prospect based on its projects: a Job (Field Project) makes it a Customer, a Lead (Sales Project) makes it a Prospect. If a Job was filed by mistake, use Convert below — the Job becomes a Lead and the status flips from Customer to Prospect.',
+  removed: [
+    'Add Account button (accounts are created via a Project)',
+    'Delete Account (would orphan linked Projects)',
+    'Tax rate (moved to Billing settings)',
+    'Custom-field columns clutter',
+  ],
   sections: [
     {
       title: 'Identity',
       fields: [
         { label: 'Account Name', type: 'text' },
-        { label: 'Type', type: 'select', options: ['Residential', 'Commercial', 'Government'] },
+        { label: 'Type', type: 'select', options: ACCOUNT_TYPES },
         { label: 'Primary Contact (Homeowner)', type: 'text' },
       ],
     },
@@ -102,19 +118,20 @@ export const contactForm: FormConfig = {
 
 export const salesProjectForm: FormConfig = {
   title: 'Sales Project (Lead)',
+  note:
+    'This is the salesperson’s starting point. Saving creates the linked Account automatically — no separate "Add Account" step. The project name is auto-generated from the contact + category.',
+  convertLabel: 'Convert to Field Project (Job)',
   removed: ['Estimated completion date (not meaningful pre-sale)', 'Actual amount (no actuals yet)'],
   sections: [
     {
-      title: 'Overview',
+      title: 'Start Here — Create the Sales Project (Lead)',
       fields: [
-        { label: 'Lead / Project Name', type: 'text' },
-        { label: 'Homeowner', type: 'text' },
-        {
-          label: 'Stage',
-          type: 'select',
-          options: ['New Lead', 'Contacted', 'Inspection Scheduled', 'Estimate Sent', 'Agreement Signed', 'Lost'],
-        },
-        { label: 'Sales Rep', type: 'select', options: OWNERS },
+        { label: 'Primary Contact (Homeowner)', type: 'text', helper: 'Link an existing contact or add a new one' },
+        { label: 'Type', type: 'select', options: ACCOUNT_TYPES },
+        { label: 'Category', type: 'select', options: CATEGORIES, added: true, helper: 'New — custom field (values you configure)' },
+        { label: 'Salesperson', type: 'select', options: OWNERS },
+        { label: 'Workflow Pipeline', type: 'select', options: PIPELINES, added: true, helper: 'New — which pipeline this lead runs through' },
+        { label: 'Workflow Status Step', type: 'select', options: SALES_STEPS },
       ],
     },
     {
@@ -139,23 +156,24 @@ export const salesProjectForm: FormConfig = {
 
 export const fieldProjectForm: FormConfig = {
   title: 'Field Project (Job)',
+  note:
+    'Use this shortcut only when the deal is already won (e.g. a simple repair) and no sales pipeline is needed. Saving creates the linked Account automatically — same one-step flow as a Sales Project.',
+  convertLabel: 'Convert to Sales Project (Lead)',
   removed: [
     'Estimated amount ("not a column we’re going to need" — Jeromy)',
     'Estimated completion date ("not important enough for the main interface" — Jeromy)',
   ],
   sections: [
     {
-      title: 'Overview',
+      title: 'Start Here — Create the Field Project (Job)',
       fields: [
-        { label: 'Project Name', type: 'text' },
-        { label: 'Homeowner', type: 'text' },
-        {
-          label: 'Job Status',
-          type: 'select',
-          options: ['Scheduled', 'Materials Ordered', 'In Progress', 'Inspection', 'Complete'],
-        },
-        { label: 'Job Type', type: 'select', options: ['Full Replacement', 'Repair', 'Inspection'], added: true },
+        { label: 'Primary Contact (Homeowner)', type: 'text', helper: 'Link an existing contact or add a new one' },
+        { label: 'Type', type: 'select', options: ACCOUNT_TYPES },
+        { label: 'Category', type: 'select', options: CATEGORIES, added: true, helper: 'New — custom field (values you configure)' },
         { label: 'Project Manager / Crew', type: 'select', options: OWNERS },
+        { label: 'Workflow Pipeline', type: 'select', options: PIPELINES, added: true, helper: 'New — job workflow this runs through' },
+        { label: 'Workflow Status Step', type: 'select', options: FIELD_STEPS },
+        { label: 'Job Type', type: 'select', options: ['Full Replacement', 'Repair', 'Inspection'], added: true },
       ],
     },
     {

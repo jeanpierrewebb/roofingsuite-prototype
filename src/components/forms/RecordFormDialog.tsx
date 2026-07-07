@@ -21,19 +21,27 @@ interface Props {
   open: boolean;
   onClose: () => void;
   config: FormConfig | null;
+  mode?: 'add' | 'edit';
 }
 
 // Non-functional form mockup — the point is to show the client the cleaned-up
 // field set (grouped), what's new, and what was removed.
-export function RecordFormDialog({ open, onClose, config }: Props) {
+export function RecordFormDialog({ open, onClose, config, mode = 'add' }: Props) {
   if (!config) return null;
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle sx={{ fontWeight: 700 }}>Add {config.title}</DialogTitle>
+      <DialogTitle sx={{ fontWeight: 700 }}>
+        {mode === 'edit' ? 'Edit' : 'Add'} {config.title}
+      </DialogTitle>
       <DialogContent dividers>
         <Alert severity="info" sx={{ mb: 2 }}>
           Prototype mockup — this form is for reviewing the proposed fields, not for saving data.
         </Alert>
+        {config.note && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {config.note}
+          </Alert>
+        )}
 
         {config.sections.map((section) => (
           <Box key={section.title} sx={{ mb: 3 }}>
@@ -106,11 +114,20 @@ export function RecordFormDialog({ open, onClose, config }: Props) {
           </>
         )}
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={onClose}>
-          Save (mock)
-        </Button>
+      <DialogActions sx={{ justifyContent: 'space-between' }}>
+        <Box>
+          {mode === 'edit' && config.convertLabel && (
+            <Button color="secondary" onClick={onClose}>
+              {config.convertLabel}
+            </Button>
+          )}
+        </Box>
+        <Box>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button variant="contained" onClick={onClose} sx={{ ml: 1 }}>
+            Save (mock)
+          </Button>
+        </Box>
       </DialogActions>
     </Dialog>
   );

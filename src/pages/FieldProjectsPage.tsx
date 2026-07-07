@@ -78,15 +78,17 @@ const facets: Facet<FieldProject>[] = [
 
 export default function FieldProjectsPage() {
   const [formOpen, setFormOpen] = useState(false);
+  const [mode, setMode] = useState<'add' | 'edit'>('add');
   return (
     <>
       <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5 }}>
         Field Projects
       </Typography>
       <Alert severity="success" sx={{ mb: 2 }}>
-        Proposed columns for sign-off. <strong>Added:</strong> Job Type, Contract Value.{' '}
-        <strong>Removed (per Jeromy):</strong> "Estimated" amount and "Estimated completion date" —
-        off the main list.
+        <strong>Shortcut for already-won deals</strong> (e.g. a simple repair) — skips the sales
+        pipeline and <strong>auto-creates the linked Account</strong>. <strong>Removed (per Jeromy):</strong>{' '}
+        "Estimated" amount & completion date. <strong>Click a row</strong> to edit, or Convert a Job
+        back into a Lead if it was filed by mistake.
       </Alert>
       <FilterableTable
         rows={mockFieldProjects}
@@ -97,9 +99,16 @@ export default function FieldProjectsPage() {
         csvBase="field-projects"
         entityLabel="field projects"
         addLabel="Add Field Project"
-        onAdd={() => setFormOpen(true)}
+        onAdd={() => {
+          setMode('add');
+          setFormOpen(true);
+        }}
+        onRowClick={() => {
+          setMode('edit');
+          setFormOpen(true);
+        }}
       />
-      <RecordFormDialog open={formOpen} onClose={() => setFormOpen(false)} config={fieldProjectForm} />
+      <RecordFormDialog open={formOpen} onClose={() => setFormOpen(false)} config={fieldProjectForm} mode={mode} />
     </>
   );
 }

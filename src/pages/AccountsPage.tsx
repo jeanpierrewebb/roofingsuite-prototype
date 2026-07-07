@@ -94,10 +94,12 @@ export default function AccountsPage() {
       <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5 }}>
         Accounts
       </Typography>
-      <Alert severity="success" sx={{ mb: 2 }}>
-        Proposed columns for sign-off. <strong>Added:</strong> Lead Source, Insurance Carrier (CSV).{' '}
-        <strong>Removed:</strong> Tax rate, custom-field clutter. Click <strong>Add Account</strong>{' '}
-        to review the proposed form fields.
+      <Alert severity="info" sx={{ mb: 2 }}>
+        <strong>No "Add Account" and no delete</strong> — per the new workflow, Accounts are created
+        automatically when a Project is added, and can’t be deleted (Project data is anchored to them).
+        Customer vs Prospect is derived from the account’s projects (a Job = Customer, a Lead = Prospect).
+        <strong> Click any row</strong> to correct details — or, if a Job was filed by mistake, use
+        <strong> Convert Customer → Prospect</strong> to turn it back into a Lead.
       </Alert>
       <FilterableTable
         rows={mockAccounts}
@@ -107,10 +109,9 @@ export default function AccountsPage() {
         searchText={(r) => `${r.name} ${r.primaryContactName} ${r.city} ${r.zip} ${r.phone}`}
         csvBase="accounts"
         entityLabel="accounts"
-        addLabel="Add Account"
-        onAdd={() => setFormOpen(true)}
+        onRowClick={() => setFormOpen(true)}
       />
-      <RecordFormDialog open={formOpen} onClose={() => setFormOpen(false)} config={accountForm} />
+      <RecordFormDialog open={formOpen} onClose={() => setFormOpen(false)} config={accountForm} mode="edit" />
     </>
   );
 }
